@@ -105,16 +105,17 @@ void usage() {
       PROG);
 }
 
-#define ASSERT_SUCCESS(status, what)      \
-  if (U_FAILURE(*status)) {               \
-    printf("%s:%d: %s: ERROR: %s %s\n", \
-             __FILE__,                    \
-             __LINE__,                    \
-             PROG,                        \
-             u_errorName(*status),        \
-             what);                       \
-    return 1;                             \
-  }
+#define ASSERT_SUCCESS(status, what)            \
+  do {                                          \
+    if (U_FAILURE(*status)) {                   \
+      fprintf(stderr, "%s:%d: ERROR: %s %s\n",  \
+               __FILE__,                        \
+               __LINE__,                        \
+               u_errorName(*status),            \
+               what);                           \
+      return 1;                                 \
+    }                                           \
+  } while (0)
 
 /**
  * @param status changed from reference to pointer to match node.js style
@@ -167,12 +168,12 @@ int localeExists(const char* loc, UBool* exists) {
     return 0;  // "good" failure
   } else {
     // some other failure..
-    printf("%s:%d: %s: ERROR %s opening %s for test.\n",
-           __FILE__,
-           __LINE__,
-           u_errorName(status),
-           packageName.data(),
-           loc);
+    fprintf(stderr, "%s:%d: %s: ERROR %s opening %s for test.\n",
+            __FILE__,
+            __LINE__,
+            u_errorName(status),
+            packageName.data(),
+            loc);
     return 1;  // abort
   }
 }
@@ -218,7 +219,8 @@ int dumpAllButInstalledLocales(int lev,
           fprintf(bf, "\"}");
         } break;
         default: {
-          printf("ERROR: unhandled type in dumpAllButInstalledLocales().\n");
+          fprintf(stderr,
+                  "ERROR: unhandled type in dumpAllButInstalledLocales().\n");
           return 1;
         } break;
       }
@@ -239,7 +241,7 @@ int list(const char* toBundle) {
     }
     bf = fopen(toBundle, "wb");
     if (bf == NULL) {  // NOLINT (readability/null_usage)
-      printf("ERROR: Could not open '%s' for writing.\n", toBundle);
+      fprintf(stderr, "ERROR: Could not open '%s' for writing.\n", toBundle);
       return 1;
     }
     fprintf(bf, "\xEF\xBB\xBF");  // write UTF-8 BOM
@@ -280,7 +282,7 @@ int list(const char* toBundle) {
             "    // First, everything besides InstalledLocales:\n",
             locale);
     if (dumpAllButInstalledLocales(0, &bund, bf, &status)) {
-      printf("Error dumping prolog for %s\n", toBundle);
+      fprintf(stderr, "Error dumping prolog for %s\n", toBundle);
       fclose(bf);
       return 1;
     }
@@ -349,7 +351,7 @@ int main(int argc, const char* argv[]) {
       VERBOSE++;
     } else if (!strcmp(arg, "-i") && (argsLeft >= 1)) {
       if (i != 1) {
-        printf("ERROR: -i must be the first argument given.\n");
+        fprintf(stderr, "ERROR: -i must be the first argument given.\n");
         usage();
         return 1;
       }
@@ -380,7 +382,7 @@ int main(int argc, const char* argv[]) {
         return 1;
       }
     } else {
-      printf("Unknown or malformed option: %s\n", arg);
+      fprintf(stderr, "Unknown or malformed option: %s\n", arg);
       usage();
       return 1;
     }
