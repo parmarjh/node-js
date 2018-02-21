@@ -745,6 +745,7 @@
           'action': [
             'python',
             'tools/js2c.py',
+            '',  # Unused in GYP build.
             '<@(_outputs)',
             '<@(_inputs)',
           ],
