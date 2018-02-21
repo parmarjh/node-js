@@ -105,14 +105,15 @@ void usage() {
       PROG);
 }
 
-#define ASSERT_SUCCESS(status, what)            \
+#define ASSERT_SUCCESS(status, ...)             \
   do {                                          \
     if (U_FAILURE(*status)) {                   \
-      fprintf(stderr, "%s:%d: ERROR: %s %s\n",  \
+      fprintf(stderr, "%s:%d: ERROR: %s ",      \
                __FILE__,                        \
                __LINE__,                        \
-               u_errorName(*status),            \
-               what);                           \
+               u_errorName(*status));           \
+      fprintf(stderr, __VA_ARGS__);             \
+      fprintf(stderr, "\n");                    \
       return 1;                                 \
     }                                           \
   } while (0)
@@ -258,7 +259,7 @@ int list(const char* toBundle) {
 
   icu::LocalUResourceBundlePointer bund(
       ures_openDirect(packageName.data(), locale, &status));
-  ASSERT_SUCCESS(&status, "while opening the bundle");
+  ASSERT_SUCCESS(&status, "while opening bundle %s", packageName.data());
   icu::LocalUResourceBundlePointer installedLocales(
       // NOLINTNEXTLINE (readability/null_usage)
       ures_getByKey(bund.getAlias(), INSTALLEDLOCALES, NULL, &status));
