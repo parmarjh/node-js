@@ -71,6 +71,7 @@ SafepointEntry SafepointTable::FindEntry(Address pc) const {
   // We use kMaxUInt32 as sentinel value, so check that we don't hit that.
   DCHECK_NE(kMaxUInt32, pc_offset);
   unsigned len = length();
+  CHECK_GT(len, 0);
   // If pc == kMaxUInt32, then this entry covers all call sites in the function.
   if (len == 1 && GetPcOffset(0) == kMaxUInt32) return GetEntry(0);
   for (unsigned i = 0; i < len; i++) {
@@ -198,12 +199,11 @@ void SafepointTableBuilder::Emit(Assembler* assembler, int bits_per_entry) {
   }
 
   // Emit table of bitmaps.
-  ZoneList<uint8_t> bits(bytes_per_entry, zone_);
+  ZoneVector<uint8_t> bits(bytes_per_entry, 0, zone_);
   for (int i = 0; i < length; i++) {
     ZoneList<int>* indexes = deoptimization_info_[i].indexes;
     ZoneList<int>* registers = deoptimization_info_[i].registers;
-    bits.Clear();
-    bits.AddBlock(0, bytes_per_entry, zone_);
+    std::fill(bits.begin(), bits.end(), 0);
 
     // Run through the registers (if any).
     DCHECK(IsAligned(kNumSafepointRegisters, kBitsPerByte));

@@ -107,7 +107,7 @@ class FrontendChannelImpl : public v8_inspector::V8Inspector::Channel {
     SendMessageTask(FrontendChannelImpl* channel,
                     const v8::internal::Vector<uint16_t>& message)
         : channel_(channel), message_(message) {}
-    virtual ~SendMessageTask() {}
+    virtual ~SendMessageTask() { message_.Dispose(); }
     bool is_priority_task() final { return false; }
 
    private:
@@ -215,6 +215,11 @@ class ExecuteStringTask : public TaskRunner::Task {
   ExecuteStringTask(const v8::internal::Vector<const char>& expression,
                     int context_group_id)
       : expression_utf8_(expression), context_group_id_(context_group_id) {}
+
+  virtual ~ExecuteStringTask() {
+    if (expression_.start()) expression_.Dispose();
+    if (expression_utf8_.start()) expression_utf8_.Dispose();
+  }
   bool is_priority_task() override { return false; }
   void Run(IsolateData* data) override {
     v8::MicrotasksScope microtasks_scope(data->isolate(),
@@ -240,6 +245,7 @@ class ExecuteStringTask : public TaskRunner::Task {
                           expression_utf8_.length());
 
     v8::ScriptCompiler::Source scriptSource(source, origin);
+    v8::Isolate::SafeForTerminationScope allowTermination(data->isolate());
     if (!is_module_) {
       v8::Local<v8::Script> script;
       if (!v8::ScriptCompiler::Compile(context, &scriptSource).ToLocal(&script))
@@ -390,8 +396,10 @@ class UtilsExtension : public IsolateData::SetupGlobalTask {
     }
     v8::internal::Vector<const char> chars;
     v8::Isolate* isolate = args.GetIsolate();
-    if (ReadFile(isolate, args[0], &chars))
+    if (ReadFile(isolate, args[0], &chars)) {
       args.GetReturnValue().Set(ToV8String(isolate, chars.start()));
+      chars.Dispose();
+    }
   }
 
   static void Load(const v8::FunctionCallbackInfo<v8::Value>& args) {
@@ -974,6 +982,50 @@ class InspectorExtension : public IsolateData::SetupGlobalTask {
   }
 };
 
+bool RunExtraCode(v8::Isolate* isolate, v8::Local<v8::Context> context,
+                  const char* utf8_source, const char* name) {
+  v8::Context::Scope context_scope(context);
+  v8::TryCatch try_catch(isolate);
+  v8::Local<v8::String> source_string;
+  if (!v8::String::NewFromUtf8(isolate, utf8_source, v8::NewStringType::kNormal)
+           .ToLocal(&source_string)) {
+    return false;
+  }
+  v8::Local<v8::String> resource_name =
+      v8::String::NewFromUtf8(isolate, name, v8::NewStringType::kNormal)
+          .ToLocalChecked();
+  v8::ScriptOrigin origin(resource_name);
+  v8::ScriptCompiler::Source source(source_string, origin);
+  v8::Local<v8::Script> script;
+  if (!v8::ScriptCompiler::Compile(context, &source).ToLocal(&script))
+    return false;
+  if (script->Run(context).IsEmpty()) return false;
+  CHECK(!try_catch.HasCaught());
+  return true;
+}
+
+v8::StartupData CreateSnapshotDataBlob(const char* embedded_source = nullptr) {
+  // Create a new isolate and a new context from scratch, optionally run
+  // a script to embed, and serialize to create a snapshot blob.
+  v8::StartupData result = {nullptr, 0};
+  {
+    v8::SnapshotCreator snapshot_creator;
+    v8::Isolate* isolate = snapshot_creator.GetIsolate();
+    {
+      v8::HandleScope scope(isolate);
+      v8::Local<v8::Context> context = v8::Context::New(isolate);
+      if (embedded_source != nullptr &&
+          !RunExtraCode(isolate, context, embedded_source, "<embedded>")) {
+        return result;
+      }
+      snapshot_creator.SetDefaultContext(context);
+    }
+    result = snapshot_creator.CreateBlob(
+        v8::SnapshotCreator::FunctionCodeHandling::kClear);
+  }
+  return result;
+}
+
 }  //  namespace
 
 int main(int argc, char* argv[]) {
@@ -991,7 +1043,7 @@ int main(int argc, char* argv[]) {
     if (strcmp(argv[i], "--embed") == 0) {
       argv[i++] = nullptr;
       printf("Embedding script '%s'\n", argv[i]);
-      startup_data = v8::V8::CreateSnapshotDataBlob(argv[i]);
+      startup_data = CreateSnapshotDataBlob(argv[i]);
       argv[i] = nullptr;
     }
   }
