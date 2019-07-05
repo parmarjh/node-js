@@ -21,8 +21,11 @@ jobs:
       install: *ccache-setup-steps
       script:
         - pyenv global 2.7.15
+        - python -c "import six" || true
         - ./configure
+        - python -c "import six" || true
         - make -j2 -C out V=1 v8
+        - python -c "import six" || true
 
     - name: "Compile Node.js"
       cache: ccache
@@ -35,10 +38,14 @@ jobs:
       install: *ccache-setup-steps
       script:
         - pyenv global 2.7.15
+        - python -c "import six" || true
         - ./configure
+        - python -c "import six" || true
         - make -j2 V=1
+        - python -c "import six" || true
         - cp out/Release/node /home/travis/.ccache
         - cp out/Release/cctest /home/travis/.ccache
+        - python -c "import six" || true
 
     - stage: "Tests"
       name: "Test JS Suites"
