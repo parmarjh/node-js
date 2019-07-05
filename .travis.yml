@@ -4,6 +4,11 @@ x-ccache-setup-steps: &ccache-setup-steps
   - export CC='ccache gcc-6'
   - export CXX='ccache g++-6'
 
+x-python-install-steps: &python-install-steps
+  - pyenv global 2.7.15
+  - export PYTHONPATH="${PYTHONPATH}:$(pwd)/deps"
+  - python -c "import six"
+
 os: linux
 dist: xenial
 language: cpp
@@ -20,13 +25,9 @@ jobs:
             - g++-6
       install: *ccache-setup-steps
       script:
-        - pyenv global 2.7.15
-        - export PYTHONPATH="${PYTHONPATH}:$(pwd)/deps"
-        - python -c "import six" || true
+        *python-install-steps
         - ./configure
-        - python -c "import six" || true
         - make -j2 -C out V=1 v8
-        - python -c "import six" || true
 
     - name: "Compile Node.js"
       cache: ccache
@@ -38,16 +39,11 @@ jobs:
             - g++-6
       install: *ccache-setup-steps
       script:
-        - pyenv global 2.7.15
-        - export PYTHONPATH="${PYTHONPATH}:$(pwd)/deps"
-        - python -c "import six" || true
+        <<: *python-install-steps
         - ./configure
-        - python -c "import six" || true
         - make -j2 V=1
-        - python -c "import six" || true
         - cp out/Release/node /home/travis/.ccache
         - cp out/Release/cctest /home/travis/.ccache
-        - python -c "import six" || true
 
     - stage: "Tests"
       name: "Test JS Suites"
@@ -57,6 +53,8 @@ jobs:
         - cp /home/travis/.ccache/node out/Release/node
       script:
         - pyenv global 2.7.15
+        - export PYTHONPATH="${PYTHONPATH}:$(pwd)/deps"
+        - python -c "import six"
         - python tools/test.py -j 2 -p dots --report --mode=release --flaky-tests=dontcare default
 
     - name: "Test C++ Suites"
@@ -73,6 +71,8 @@ jobs:
         - touch config.gypi
       script:
         - pyenv global 2.7.15
+        - export PYTHONPATH="${PYTHONPATH}:$(pwd)/deps"
+        - python -c "import six"
         - out/Release/cctest
         - make -j1 V=1 test/addons/.buildstamp test/js-native-api/.buildstamp test/node-api/.buildstamp
         - python tools/test.py -j 2 -p dots --report --mode=release --flaky-tests=dontcare addons js-native-api node-api
@@ -82,6 +82,8 @@ jobs:
       node_js: "node"
       install:
         - pyenv global 2.7.15
+        - export PYTHONPATH="${PYTHONPATH}:$(pwd)/deps"
+        - python -c "import six"
         - make lint-py-build || true
       script:
         - NODE=$(which node) make lint lint-py
