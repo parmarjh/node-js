@@ -21,6 +21,7 @@ jobs:
       install: *ccache-setup-steps
       script:
         - pyenv global 2.7.15
+        - export PYTHONPATH="${PYTHONPATH}:$(PWD)/deps"
         - python -c "import six" || true
         - ./configure
         - python -c "import six" || true
@@ -38,6 +39,7 @@ jobs:
       install: *ccache-setup-steps
       script:
         - pyenv global 2.7.15
+        - export PYTHONPATH="${PYTHONPATH}:$(PWD)/deps"
         - python -c "import six" || true
         - ./configure
         - python -c "import six" || true
