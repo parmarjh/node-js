@@ -40,6 +40,22 @@ jobs:
         - cp out/Release/node /home/travis/.ccache
         - cp out/Release/cctest /home/travis/.ccache
 
+    - name: "Compile Node.js --shared"
+      cache: ccache
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      install: *ccache-setup-steps
+      script:
+        - pyenv global 2.7.15
+        - ./configure --shared
+        - make -j2 V=1
+        - cp out/Release/node /home/travis/.ccache
+        - cp out/Release/cctest /home/travis/.ccache
+
     - stage: "Tests"
       name: "Test JS Suites"
       cache: ccache
