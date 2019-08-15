@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (c) 2012 Google Inc. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -242,10 +243,10 @@ def LoadOneBuildFile(build_file_path, data, aux_data, includes,
     else:
       build_file_data = eval(build_file_contents, {'__builtins__': None},
                              None)
-  except SyntaxError, e:
+  except SyntaxError as e:
     e.filename = build_file_path
     raise
-  except Exception, e:
+  except Exception as e:
     gyp.common.ExceptionAppend(e, 'while reading ' + build_file_path)
     raise
 
@@ -265,7 +266,7 @@ def LoadOneBuildFile(build_file_path, data, aux_data, includes,
       else:
         LoadBuildFileIncludesIntoDict(build_file_data, build_file_path, data,
                                       aux_data, None, check)
-    except Exception, e:
+    except Exception as e:
       gyp.common.ExceptionAppend(e,
                                  'while reading includes of ' + build_file_path)
       raise
@@ -467,7 +468,7 @@ def LoadTargetBuildFile(build_file_path, data, aux_data, variables, includes,
       try:
         LoadTargetBuildFile(dependency, data, aux_data, variables,
                             includes, depth, check, load_dependencies)
-      except Exception, e:
+      except Exception as e:
         gyp.common.ExceptionAppend(
           e, 'while loading dependencies of %s' % build_file_path)
         raise
@@ -510,12 +511,12 @@ def CallLoadTargetBuildFile(global_flags,
     return (build_file_path,
             build_file_data,
             dependencies)
-  except GypError, e:
+  except GypError as e:
     sys.stderr.write("gyp: %s\n" % e)
     return None
-  except Exception, e:
-    print >>sys.stderr, 'Exception:', e
-    print >>sys.stderr, traceback.format_exc()
+  except Exception as e:
+    print('Exception:', e, file=sys.stderr)
+    print(traceback.format_exc(), file=sys.stderr)
     return None
 
 
@@ -605,7 +606,7 @@ def LoadTargetBuildFilesParallel(build_files, data, variables, includes, depth,
           args = (global_flags, dependency,
                   variables, includes, depth, check, generator_input_info),
           callback = parallel_state.LoadTargetBuildFileCallback)
-  except KeyboardInterrupt, e:
+  except KeyboardInterrupt as e:
     parallel_state.pool.terminate()
     raise e
 
@@ -907,7 +908,7 @@ def ExpandVariables(input, phase, variables, build_file):
                                  stderr=subprocess.PIPE,
                                  stdin=subprocess.PIPE,
                                  cwd=build_file_dir)
-          except Exception, e:
+          except Exception as e:
             raise GypError("%s while executing command '%s' in %s" %
                            (e, contents, build_file))
 
@@ -1021,7 +1022,7 @@ def ExpandVariables(input, phase, variables, build_file):
 
   # Convert all strings that are canonically-represented integers into integers.
   if type(output) is list:
-    for index in xrange(0, len(output)):
+    for index in range(0, len(output)):
       if IsStrCanonicalInt(output[index]):
         output[index] = int(output[index])
   elif IsStrCanonicalInt(output):
@@ -1092,13 +1093,13 @@ def EvalSingleCondition(
     if eval(ast_code, {'__builtins__': None}, variables):
       return true_dict
     return false_dict
-  except SyntaxError, e:
+  except SyntaxError as e:
     syntax_error = SyntaxError('%s while evaluating condition \'%s\' in %s '
                                'at character %d.' %
                                (str(e.args[0]), e.text, build_file, e.offset),
                                e.filename, e.lineno, e.offset, e.text)
     raise syntax_error
-  except NameError, e:
+  except NameError as e:
     gyp.common.ExceptionAppend(e, 'while evaluating condition \'%s\' in %s' %
                                (cond_expr_expanded, build_file))
     raise GypError(e)
@@ -1175,7 +1176,7 @@ def LoadVariablesFromVariablesDict(variables, the_dict, the_dict_key):
       if variable_name in variables:
         # If the variable is already set, don't set it.
         continue
-      if the_dict_key is 'variables' and variable_name in the_dict:
+      if the_dict_key == 'variables' and variable_name in the_dict:
         # If the variable is set without a % in the_dict, and the_dict is a
         # variables dict (making |variables| a varaibles sub-dict of a
         # variables dict), use the_dict's definition.
@@ -1378,7 +1379,7 @@ def QualifyDependencies(targets):
     toolset = target_dict['toolset']
     for dependency_key in all_dependency_sections:
       dependencies = target_dict.get(dependency_key, [])
-      for index in xrange(0, len(dependencies)):
+      for index in range(0, len(dependencies)):
         dep_file, dep_target, dep_toolset = gyp.common.ResolveTarget(
             target_build_file, dependencies[index], toolset)
         if not multiple_toolsets:
@@ -1419,7 +1420,7 @@ def ExpandWildcardDependencies(targets, data):
     for dependency_key in dependency_sections:
       dependencies = target_dict.get(dependency_key, [])
 
-      # Loop this way instead of "for dependency in" or "for index in xrange"
+      # Loop this way instead of "for dependency in" or "for index in range"
       # because the dependencies list will be modified within the loop body.
       index = 0
       while index < len(dependencies):
@@ -1859,7 +1860,7 @@ def VerifyNoGYPFileCircularDependencies(targets):
     for dependency in target_dependencies:
       try:
         dependency_build_file = gyp.common.BuildFile(dependency)
-      except GypError, e:
+      except GypError as e:
         gyp.common.ExceptionAppend(
             e, 'while computing dependencies of .gyp file %s' % build_file)
         raise
@@ -2398,7 +2399,7 @@ def ProcessListFiltersInDict(name, the_dict):
     exclude_key = list_key + '!'
     if exclude_key in the_dict:
       for exclude_item in the_dict[exclude_key]:
-        for index in xrange(0, len(the_list)):
+        for index in range(0, len(the_list)):
           if exclude_item == the_list[index]:
             # This item matches the exclude_item, so set its action to 0
             # (exclude).
@@ -2424,7 +2425,7 @@ def ProcessListFiltersInDict(name, the_dict):
           raise ValueError('Unrecognized action ' + action + ' in ' + name + \
                            ' key ' + regex_key)
 
-        for index in xrange(0, len(the_list)):
+        for index in range(0, len(the_list)):
           list_item = the_list[index]
           if list_actions[index] == action_value:
             # Even if the regex matches, nothing will change so continue (regex
@@ -2455,7 +2456,7 @@ def ProcessListFiltersInDict(name, the_dict):
     # the indices of items that haven't been seen yet don't shift.  That means
     # that things need to be prepended to excluded_list to maintain them in the
     # same order that they existed in the_list.
-    for index in xrange(len(list_actions) - 1, -1, -1):
+    for index in range(len(list_actions) - 1, -1, -1):
       if list_actions[index] == 0:
         # Dump anything with action 0 (exclude).  Keep anything with action 1
         # (include) or -1 (no include or exclude seen for the item).
@@ -2664,7 +2665,7 @@ def TurnIntIntoStrInDict(the_dict):
 def TurnIntIntoStrInList(the_list):
   """Given list the_list, recursively converts all integers into strings.
   """
-  for index in xrange(0, len(the_list)):
+  for index in range(0, len(the_list)):
     item = the_list[index]
     if type(item) is int:
       the_list[index] = str(item)
@@ -2782,7 +2783,7 @@ def Load(build_files, variables, includes, depth, generator_input_info, check,
       try:
         LoadTargetBuildFile(build_file, data, aux_data,
                             variables, includes, depth, check, True)
-      except Exception, e:
+      except Exception as e:
         gyp.common.ExceptionAppend(e, 'while trying to load %s' % build_file)
         raise
 
