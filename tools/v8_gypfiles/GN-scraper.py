@@ -8,7 +8,7 @@ def DoMain(args):
   gn_filename, pattern = args
   src_root = os.path.dirname(gn_filename)
   with open(gn_filename, 'r') as gn_file:
-    gn_content = gn_file.read().encode('utf-8')
+    gn_content = gn_file.read().decode('utf-8')
 
   print("CCC pattern:", type(pattern), pattern)
   print("CCC gn_content:", type(gn_content), gn_content)
