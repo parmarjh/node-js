@@ -876,6 +876,7 @@ def ExpandVariables(input, phase, variables, build_file):
           sys.path.append(os.getcwd())
           try:
 
+            parsed_contents = shlex.split(contents)
             try:
               py_module = __import__(parsed_contents[0])
             except ImportError as e:
