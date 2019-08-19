@@ -876,14 +876,13 @@ def ExpandVariables(input, phase, variables, build_file):
           sys.path.append(os.getcwd())
           try:
 
-            parsed_contents = shlex.split(contents)
             try:
               py_module = __import__(parsed_contents[0])
             except ImportError as e:
               raise GypError("Error importing pymod_do_main"
                              "module (%s): %s" % (parsed_contents[0], e))
-            print(type(parsed_contents[1:]), parsed_contents[1:])
-            replacement = str(py_module.DoMain(to_utf8(parsed_contents[1:]))).rstrip()
+            replacement = str(py_module.DoMain(parsed_contents[1:])).rstrip()
+            print("CCC:", type(replacement), replacement)
           finally:
             sys.path.pop()
             os.chdir(oldwd)
