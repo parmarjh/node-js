@@ -882,7 +882,7 @@ def ExpandVariables(input, phase, variables, build_file):
             except ImportError as e:
               raise GypError("Error importing pymod_do_main"
                              "module (%s): %s" % (parsed_contents[0], e))
-            replacement = str(py_module.DoMain(parsed_contents[1:])).rstrip()
+            replacement = str(py_module.DoMain(to_utf8(parsed_contents)[1:])).rstrip()
           finally:
             sys.path.pop()
             os.chdir(oldwd)
