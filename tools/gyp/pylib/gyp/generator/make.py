@@ -1725,7 +1725,7 @@ $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(obj)/%%%s FORCE_DO_CMD
            output is just a name to run the rule
     command: (optional) command name to generate unambiguous labels
     """
-    outputs = [QuoteSpaces(o) for o in outputs
+    outputs = [QuoteSpaces(o) for o in outputs]
     inputs = [QuoteSpaces(i) for i in inputs]
 
     if comment:
