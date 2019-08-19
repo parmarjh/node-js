@@ -7,7 +7,7 @@ PLAIN_SOURCE_RE = re.compile('\s*"([^/$].+)"\s*')
 def DoMain(args):
   gn_filename, pattern = args
   src_root = os.path.dirname(gn_filename)
-  with open(gn_filename, 'r') as gn_file:
+  with open(gn_filename, 'rb') as gn_file:
     gn_content = gn_file.read().decode('utf-8')
 
   print("CCC pattern:", type(pattern), pattern)
