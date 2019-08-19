@@ -7,9 +7,11 @@ PLAIN_SOURCE_RE = re.compile('\s*"([^/$].+)"\s*')
 def DoMain(args):
   gn_filename, pattern = args
   src_root = os.path.dirname(gn_filename)
-  with open(gn_filename, 'r') as gn_file:
+  with open(gn_filename, 'rb') as gn_file:
     gn_content = gn_file.read().encode('utf-8')
 
+  print("CCC pattern:", type(pattern), pattern)
+  print("CCC gn_content:", type(gn_content), gn_content)
   scraper_re = re.compile(pattern + r'\[([^\]]+)', re.DOTALL)
   matches = scraper_re.search(gn_content)
   match = matches.group(1)
