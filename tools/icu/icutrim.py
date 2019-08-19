@@ -184,15 +184,12 @@ runcmd("icupkg", "-t%s %s %s""" % (endian_letter, options.datfile, outfile))
 listfile = os.path.join(options.tmpdir,"icudata.lst")
 runcmd("icupkg", "-l %s > %s""" % (outfile, listfile))
 
-fi = open(listfile, 'rb')
-items = fi.readlines()
-items = [items[i].strip() for i in range(len(items))]
-fi.close()
-
+with open(listfile, 'rb') as fi:
+    items = [line.strip() for line in fi.read().decode("utf-8").splitlines()]
 itemset = set(items)
 
-if (options.verbose>1):
-    print("input file: %d items" % (len(items)))
+if options.verbose > 1:
+    print("input file: %d items" % len(items))
 
 # list of all trees
 trees = {}
