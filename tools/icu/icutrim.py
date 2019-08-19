@@ -308,8 +308,7 @@ def removeList(count=0):
         hackerrfile=os.path.join(options.tmpdir, "REMOVE.err")
         removefile = os.path.join(options.tmpdir, "REMOVE.lst")
         with open(removefile, 'wb') as fi:
-            for i in remove:
-                print(i.encode("utf-8"), file=fi)
+            fi.write('\n'.join(remove).encode("utf-8") + b'\n')
         rc = runcmd("icupkg","-r %s %s 2> %s" %  (removefile,outfile,hackerrfile),True)
         if rc != 0:
             if(options.verbose>5):
