@@ -700,7 +700,13 @@ PHASE_LATELATE = 2
 def ExpandVariables(input, phase, variables, build_file):
   # Look for the pattern that gets expanded into variables
   def to_utf8(s):
-    return s if isinstance(s, str) else s.decode('utf-8')
+    try:
+      return s if isinstance(s, str) else s.decode('utf-8')
+    except UnicodeDecodeError:
+      try:
+        return s.decode('latin-1')
+      except UnicodeDecodeError:
+        return s
 
   if phase == PHASE_EARLY:
     variable_re = early_variable_re
