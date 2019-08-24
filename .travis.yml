@@ -8,7 +8,9 @@ os: linux
 language: cpp
 env:
   global:
-    - PYTHON_VERSION="2.7.15"
+    #- PYTHON_VERSION="2.7.15"
+    - PYTHON_VERSION="3.6.7"
+    #- PYTHON_VERSION="3.7.1"
 jobs:
   include:
     - stage: "Compile"
