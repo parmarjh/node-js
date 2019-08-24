@@ -1504,6 +1504,9 @@ fs.copyFileSync('source.txt', 'destination.txt', COPYFILE_EXCL);
 <!-- YAML
 added: v0.1.31
 changes:
+  - version: REPLACEME
+    pr-url: https://github.com/nodejs/node/pull/29212
+    description: Enable `emitClose` option.
   - version: v11.0.0
     pr-url: https://github.com/nodejs/node/pull/19898
     description: Impose new restrictions on `start` and `end`, throwing
@@ -1529,6 +1532,7 @@ changes:
   * `fd` {integer} **Default:** `null`
   * `mode` {integer} **Default:** `0o666`
   * `autoClose` {boolean} **Default:** `true`
+  * `emitClose` {boolean} **Default:** `false`
   * `start` {integer}
   * `end` {integer} **Default:** `Infinity`
   * `highWaterMark` {integer} **Default:** `64 * 1024`
@@ -1554,6 +1558,10 @@ If `fd` points to a character device that only supports blocking reads
 (such as keyboard or sound card), read operations do not finish until data is
 available. This can prevent the process from exiting and the stream from
 closing naturally.
+
+By default, the stream will not emit a `'close'` event after it has been
+destroyed. This is the opposite of the default for other `Readable` streams.
+Set the `emitClose` option to `true` to change this behavior.
 
 ```js
 const fs = require('fs');
@@ -1592,6 +1600,9 @@ If `options` is a string, then it specifies the encoding.
 <!-- YAML
 added: v0.1.31
 changes:
+  - version: REPLACEME
+    pr-url: https://github.com/nodejs/node/pull/29212
+    description: Enable `emitClose` option.
   - version: v7.6.0
     pr-url: https://github.com/nodejs/node/pull/10739
     description: The `path` parameter can be a WHATWG `URL` object using
@@ -1615,6 +1626,7 @@ changes:
   * `fd` {integer} **Default:** `null`
   * `mode` {integer} **Default:** `0o666`
   * `autoClose` {boolean} **Default:** `true`
+  * `emitClose` {boolean} **Default:** `false`
   * `start` {integer}
 * Returns: {fs.WriteStream} See [Writable Stream][].
 
@@ -1630,6 +1642,10 @@ the file descriptor will be closed automatically. If `autoClose` is false,
 then the file descriptor won't be closed, even if there's an error.
 It is the application's responsibility to close it and make sure there's no
 file descriptor leak.
+
+By default, the stream will not emit a `'close'` event after it has been
+destroyed. This is the opposite of the default for other `Writable` streams.
+Set the `emitClose` option to `true` to change this behavior.
 
 Like [`ReadStream`][], if `fd` is specified, [`WriteStream`][] will ignore the
 `path` argument and will use the specified file descriptor. This means that no
@@ -3001,10 +3017,14 @@ changes:
 
 Synchronous rename(2). Returns `undefined`.
 
-## fs.rmdir(path, callback)
+## fs.rmdir(path[, options], callback)
 <!-- YAML
 added: v0.0.2
 changes:
+  - version: REPLACEME
+    pr-url: https://github.com/nodejs/node/pull/29168
+    description: The `recursive`, `maxBusyTries`, and `emfileWait` options are
+                 now supported.
   - version: v10.0.0
     pr-url: https://github.com/nodejs/node/pull/12562
     description: The `callback` parameter is no longer optional. Not passing
@@ -3019,7 +3039,21 @@ changes:
                  it will emit a deprecation warning with id DEP0013.
 -->
 
+> Stability: 1 - Recursive removal is experimental.
+
 * `path` {string|Buffer|URL}
+* `options` {Object}
+  * `emfileWait` {integer} If an `EMFILE` error is encountered, Node.js will
+  retry the operation with a linear backoff of 1ms longer on each try until the
+  timeout duration passes this limit. This option is ignored if the `recursive`
+  option is not `true`. **Default:** `1000`.
+  * `maxBusyTries` {integer} If an `EBUSY`, `ENOTEMPTY`, or `EPERM` error is
+  encountered, Node.js will retry the operation with a linear backoff wait of
+  100ms longer on each try. This option represents the number of retries. This
+  option is ignored if the `recursive` option is not `true`. **Default:** `3`.
+  * `recursive` {boolean} If `true`, perform a recursive directory removal. In
+  recursive mode, errors are not reported if `path` does not exist, and
+  operations are retried on failure. **Default:** `false`.
 * `callback` {Function}
   * `err` {Error}
 
@@ -3029,17 +3063,27 @@ to the completion callback.
 Using `fs.rmdir()` on a file (not a directory) results in an `ENOENT` error on
 Windows and an `ENOTDIR` error on POSIX.
 
-## fs.rmdirSync(path)
+## fs.rmdirSync(path[, options])
 <!-- YAML
 added: v0.1.21
 changes:
+  - version: REPLACEME
+    pr-url: https://github.com/nodejs/node/pull/29168
+    description: The `recursive`, `maxBusyTries`, and `emfileWait` options are
+                 now supported.
   - version: v7.6.0
     pr-url: https://github.com/nodejs/node/pull/10739
     description: The `path` parameters can be a WHATWG `URL` object using
                  `file:` protocol. Support is currently still *experimental*.
 -->
 
+> Stability: 1 - Recursive removal is experimental.
+
 * `path` {string|Buffer|URL}
+* `options` {Object}
+  * `recursive` {boolean} If `true`, perform a recursive directory removal. In
+  recursive mode, errors are not reported if `path` does not exist, and
+  operations are retried on failure. **Default:** `false`.
 
 Synchronous rmdir(2). Returns `undefined`.
 
@@ -4678,12 +4722,31 @@ added: v10.0.0
 Renames `oldPath` to `newPath` and resolves the `Promise` with no arguments
 upon success.
 
-### fsPromises.rmdir(path)
+### fsPromises.rmdir(path[, options])
 <!-- YAML
 added: v10.0.0
+changes:
+  - version: REPLACEME
+    pr-url: https://github.com/nodejs/node/pull/29168
+    description: The `recursive`, `maxBusyTries`, and `emfileWait` options are
+                  now supported.
 -->
 
+> Stability: 1 - Recursive removal is experimental.
+
 * `path` {string|Buffer|URL}
+* `options` {Object}
+  * `emfileWait` {integer} If an `EMFILE` error is encountered, Node.js will
+  retry the operation with a linear backoff of 1ms longer on each try until the
+  timeout duration passes this limit. This option is ignored if the `recursive`
+  option is not `true`. **Default:** `1000`.
+  * `maxBusyTries` {integer} If an `EBUSY`, `ENOTEMPTY`, or `EPERM` error is
+  encountered, Node.js will retry the operation with a linear backoff wait of
+  100ms longer on each try. This option represents the number of retries. This
+  option is ignored if the `recursive` option is not `true`. **Default:** `3`.
+  * `recursive` {boolean} If `true`, perform a recursive directory removal. In
+  recursive mode, errors are not reported if `path` does not exist, and
+  operations are retried on failure. **Default:** `false`.
 * Returns: {Promise}
 
 Removes the directory identified by `path` then resolves the `Promise` with
@@ -5177,7 +5240,7 @@ the file contents.
 [`fs.readdir()`]: #fs_fs_readdir_path_options_callback
 [`fs.readdirSync()`]: #fs_fs_readdirsync_path_options
 [`fs.realpath()`]: #fs_fs_realpath_path_options_callback
-[`fs.rmdir()`]: #fs_fs_rmdir_path_callback
+[`fs.rmdir()`]: #fs_fs_rmdir_path_options_callback
 [`fs.stat()`]: #fs_fs_stat_path_options_callback
 [`fs.symlink()`]: #fs_fs_symlink_target_path_type_callback
 [`fs.utimes()`]: #fs_fs_utimes_path_atime_mtime_callback

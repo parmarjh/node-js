@@ -620,6 +620,8 @@ instance's underlying [`net.Socket`].
 added: v8.4.0
 -->
 
+* Extends: {Http2Session}
+
 #### serverhttp2session.altsvc(alt, originOrStream)
 <!-- YAML
 added: v9.4.0
@@ -741,6 +743,8 @@ server.on('stream', (stream) => {
 <!-- YAML
 added: v8.4.0
 -->
+
+* Extends: {Http2Session}
 
 #### Event: 'altsvc'
 <!-- YAML
@@ -2628,13 +2632,12 @@ HTTP/2.
 added: v8.4.0
 -->
 
+* Extends: {stream.Readable}
+
 A `Http2ServerRequest` object is created by [`http2.Server`][] or
 [`http2.SecureServer`][] and passed as the first argument to the
 [`'request'`][] event. It may be used to access a request status, headers, and
 data.
-
-It implements the [Readable Stream][] interface, as well as the
-following additional events, methods, and properties.
 
 #### Event: 'aborted'
 <!-- YAML
@@ -2938,11 +2941,10 @@ Url {
 added: v8.4.0
 -->
 
+* Extends: {Stream}
+
 This object is created internally by an HTTP server — not by the user. It is
 passed as the second parameter to the [`'request'`][] event.
-
-The response inherits from [Stream][], and additionally implements the
-following:
 
 #### Event: 'close'
 <!-- YAML
@@ -3469,8 +3471,6 @@ following additional properties:
 [RFC 7838]: https://tools.ietf.org/html/rfc7838
 [RFC 8336]: https://tools.ietf.org/html/rfc8336
 [RFC 8441]: https://tools.ietf.org/html/rfc8441
-[Readable Stream]: stream.html#stream_class_stream_readable
-[Stream]: stream.html#stream_stream
 [`'checkContinue'`]: #http2_event_checkcontinue
 [`'connect'`]: #http2_event_connect
 [`'request'`]: #http2_event_request
