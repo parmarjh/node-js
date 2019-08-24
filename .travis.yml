@@ -11,7 +11,7 @@ env:
     #- PYTHON_VERSION="2.7.15"
     - PYTHON_VERSION="3.6.7"
     #- PYTHON_VERSION="3.7.1"
-    PYTHON="python${PYTHON_VERSION:0:3}"
+    - PYTHON="python${PYTHON_VERSION:0:3}"
 jobs:
   include:
     - stage: "Compile"
@@ -96,11 +96,11 @@ jobs:
       node_js: "node"
       install:
         - pyenv global 3.6.7
-        - python3.6 -m pip install --upgrade pip
+        - ${PYTHON} -m pip install --upgrade pip
         - make lint-py-build
       script:
         - NODE=$(which node) make lint lint-py
-        - python3.6 ./configure.py
+        - ${PYTHON} ./configure.py
         - NODE=$(which node) make test
 
   allow_failures:
