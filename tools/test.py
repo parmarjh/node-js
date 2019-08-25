@@ -790,13 +790,24 @@ class TestRepository(TestSuite):
     try:
       # (file, pathname, description) = imp.find_module('testcfg', [ self.path ])
       # module = imp.load_module('testcfg', file, pathname, description)
+
       # module = importlib.import_module('testcfg')
-      if False:
-        print("CCC: 0")
+      # if False:
+      #  print("CCC: 0")
+      # else:
+      #  print("CCC: 1")
+      #  module = importlib.__import__('testcfg', globals=None, locals=None, fromlist=[self.path])
+      #  print("CCC: {}".format(module))
+      import importlib.util
+      spec = importlib.util.find_spec('testcfg')
+      if spec is None:
+        print("can't find the itertools module")
       else:
-        print("CCC: 1")
-        module = importlib.__import__('testcfg', globals=None, locals=None, fromlist=[self.path])
-        print("CCC: {}".format(module))
+        # If you chose to perform the actual import ...
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        # Adding the module to sys.modules is optional.
+        # sys.modules[name] = module
 
       assert module
       self.config = module.GetConfiguration(context, self.path)
