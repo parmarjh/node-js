@@ -790,8 +790,8 @@ class TestRepository(TestSuite):
     try:
       # (file, pathname, description) = imp.find_module('testcfg', [ self.path ])
       # module = imp.load_module('testcfg', file, pathname, description)
-      module = importlib.import_module('testcfg')
-      if module:
+      # module = importlib.import_module('testcfg')
+      if False:
         print("CCC: 0")
       else:
         print("CCC: 1")
