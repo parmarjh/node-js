@@ -29,7 +29,7 @@
 
 
 from __future__ import print_function
-import importlib
+import imp
 import logging
 import optparse
 import os
@@ -788,29 +788,8 @@ class TestRepository(TestSuite):
     self.is_loaded = True
     file = None
     try:
-      # (file, pathname, description) = imp.find_module('testcfg', [ self.path ])
-      # module = imp.load_module('testcfg', file, pathname, description)
-
-      # module = importlib.import_module('testcfg')
-      # if False:
-      #  print("CCC: 0")
-      # else:
-      #  print("CCC: 1")
-      #  module = importlib.__import__('testcfg', globals=None, locals=None, fromlist=[self.path])
-      #  print("CCC: {}".format(module))
-      import importlib.util
-      # spec = importlib.util.find_spec('testcfg')
-      spec = importlib.util.spec_from_file_location('testcfg', self.path)
-      if spec is None:
-        print("can't find the itertools module")
-      else:
-        # If you chose to perform the actual import ...
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        # Adding the module to sys.modules is optional.
-        # sys.modules[name] = module
-
-      assert module
+      (file, pathname, description) = imp.find_module('testcfg', [ self.path ])
+      module = imp.load_module('testcfg', file, pathname, description)
       self.config = module.GetConfiguration(context, self.path)
       if hasattr(self.config, 'additional_flags'):
         self.config.additional_flags += context.node_args
