@@ -29,7 +29,7 @@
 
 
 from __future__ import print_function
-import imp
+import importlib
 import logging
 import optparse
 import os
@@ -788,8 +788,17 @@ class TestRepository(TestSuite):
     self.is_loaded = True
     file = None
     try:
-      (file, pathname, description) = imp.find_module('testcfg', [ self.path ])
-      module = imp.load_module('testcfg', file, pathname, description)
+      # (file, pathname, description) = imp.find_module('testcfg', [ self.path ])
+      # module = imp.load_module('testcfg', file, pathname, description)
+      module = importlib.import_module('testcfg')
+      if module:
+        print("CCC: 0")
+      else:
+        print("CCC: 1")
+        module = importlib.__import__('testcfg', globals=None, locals=None, fromlist=[self.path])
+        print("CCC: {}".format(module))
+
+      assert module
       self.config = module.GetConfiguration(context, self.path)
       if hasattr(self.config, 'additional_flags'):
         self.config.additional_flags += context.node_args
