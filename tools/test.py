@@ -799,7 +799,8 @@ class TestRepository(TestSuite):
       #  module = importlib.__import__('testcfg', globals=None, locals=None, fromlist=[self.path])
       #  print("CCC: {}".format(module))
       import importlib.util
-      spec = importlib.util.find_spec('testcfg')
+      # spec = importlib.util.find_spec('testcfg')
+      spec = importlib.util.spec_from_file_location('testcfg', self.path)
       if spec is None:
         print("can't find the itertools module")
       else:
