@@ -98,7 +98,8 @@ jobs:
       script:
         - NODE=$(which node) make lint lint-py
         - python3.6 ./configure.py
-        - NODE=$(which node) make test
+        #- NODE=$(which node) make test
+        - python3.6 ./tools/test.py
 
     - name: "Python 3 is EXPERIMENTAL (Py37)"
       language: node_js
@@ -110,7 +111,8 @@ jobs:
       script:
         - NODE=$(which node) make lint lint-py
         - python3.7 ./configure.py
-        - NODE=$(which node) make test
+        #- NODE=$(which node) make test
+        - python3.7 ./tools/test.py
 
   allow_failures:
     - name: "Python 3 is EXPERIMENTAL (Py36)"
