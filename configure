@@ -1,9 +1,13 @@
 #!/bin/sh
 
-# Locate python2 interpreter and re-execute the script.  Note that the
+# Locate python interpreter and re-execute the script.  Note that the
 # mix of single and double quotes is intentional, as is the fact that
 # the ] goes on a new line.
 _=[ 'exec' '/bin/sh' '-c' '''
+which python3.7 >/dev/null && exec python3.7 "$0" "$@"
+which python3.6 >/dev/null && exec python3.6 "$0" "$@"
+which python3.5 >/dev/null && exec python3.5 "$0" "$@"
+which python3 >/dev/null && exec python3 "$0" "$@"
 which python2.7 >/dev/null && exec python2.7 "$0" "$@"
 which python2 >/dev/null && exec python2 "$0" "$@"
 exec python "$0" "$@"
@@ -13,16 +17,18 @@ del _
 
 import sys
 from distutils.spawn import find_executable as which
-if sys.version_info[:2] != (2, 7):
-  sys.stderr.write('Please use Python 2.7')
 
-  python2 = which('python2') or which('python2.7')
-
-  if python2:
-    sys.stderr.write(':\n\n')
-    sys.stderr.write('  ' + python2 + ' ' + ' '.join(sys.argv))
-
+current_python = 'python{0}.{1}'.format(*sys.version_info)
+valid_pythons = ('python3.7', 'python3.6', 'python3.5', 'python2.7')
+if current_python in valid_pythons:
+  import configure
+else:
+  sys.stderr.write('Please use ' + ', '.join(valid_pythons))
+  # try to find a locally installed acceptable python
+  for py in valid_pythons:
+    python_exe = which(py)
+    if python_exe:
+      sys.stderr.write(':\n\n  {0} {1}'.format(python_exe, ' '.join(sys.argv)))
+      break
   sys.stderr.write('\n')
   sys.exit(1)
-
-import configure
