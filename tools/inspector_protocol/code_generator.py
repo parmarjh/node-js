@@ -41,6 +41,7 @@ def read_config():
             items = [(k, os.path.join(output_base, v) if k == "path" else v) for (k, v) in object_dict.items()]
             items = [(k, os.path.join(output_base, v) if k == "output" else v) for (k, v) in items]
             keys, values = list(zip(*items))
+            keys = ['async_' if key is 'async' else key for key in keys]
             return collections.namedtuple('X', keys)(*values)
         return json.loads(data, object_hook=json_object_hook)
 
@@ -521,7 +522,7 @@ class Protocol(object):
     def is_async_command(self, domain, command):
         if not self.config.protocol.options:
             return False
-        return self.check_options(self.config.protocol.options, domain, command, "async", None, False)
+        return self.check_options(self.config.protocol.options, domain, command, "async_", None, False)
 
 
     def is_exported(self, domain, name):
