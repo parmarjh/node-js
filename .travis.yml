@@ -33,7 +33,7 @@ jobs:
         - python3.5 --version || true
         - python3.6 --version || true
         - python3.7 --version || true
-        - python3.6 ./configure.py
+        - ./configure
         - make -j2 -C out V=1 v8
 
     - name: "Compile Node.js"
@@ -47,7 +47,7 @@ jobs:
       install: true  # *ccache-setup-steps
       script:
         # - pyenv global ${PYTHON_VERSION}
-        - python3.6 ./configure.py
+        - ./configure
         - make -j2 V=1
         - cp out/Release/node /home/travis/.ccache
         - cp out/Release/cctest /home/travis/.ccache
