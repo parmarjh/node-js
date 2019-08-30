@@ -5,7 +5,7 @@ x-ccache-setup-steps: &ccache-setup-steps
   - export CXX='ccache g++-6'
 
 os: osx
-osx_image: xcode11    # Python 3.7.4 running on macOS 10.14.4
+# osx_image: xcode11    # Python 3.7.4 running on macOS 10.14.4
 language: cpp
 # Currently this file can only support one PYTHON_VERSION.
 # To experiment with Python 3, comment out Python 2.7 and uncomment one of the Python 3 versions.
@@ -28,7 +28,11 @@ jobs:
       install: *ccache-setup-steps
       script:
         #- pyenv global ${PYTHON_VERSION}
-        - python3.6 --version
+        - python3 --version || true
+        - python3.4 --version || true
+        - python3.5 --version || true
+        - python3.6 --version || true
+        - python3.7 --version || true
         - python3.6 ./configure.py
         - make -j2 -C out V=1 v8
 
