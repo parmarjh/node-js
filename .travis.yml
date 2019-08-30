@@ -25,7 +25,7 @@ jobs:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
-      install: *ccache-setup-steps
+      install: true  # *ccache-setup-steps
       script:
         #- pyenv global ${PYTHON_VERSION}
         - python3 --version || true
@@ -44,7 +44,7 @@ jobs:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
-      install: *ccache-setup-steps
+      install: true  # *ccache-setup-steps
       script:
         # - pyenv global ${PYTHON_VERSION}
         - python3.6 ./configure.py
