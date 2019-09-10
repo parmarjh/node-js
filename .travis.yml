@@ -1,8 +1,8 @@
 x-ccache-setup-steps: &ccache-setup-steps
   - export CCACHE_NOSTATS=1
   - export CCACHE_SLOPPINESS="file_macro,include_file_mtime,include_file_ctime,time_macros,file_stat_matches"
-  - export CC='ccache gcc-6'
-  - export CXX='ccache g++-6'
+  - export CC='ccache gcc-9'
+  - export CXX='ccache g++-9'
 
 os: linux
 language: cpp
@@ -23,7 +23,7 @@ jobs:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6
+            - g++-9
       install: *ccache-setup-steps
       script:
         - pyenv global ${PYTHON_VERSION}
@@ -37,7 +37,7 @@ jobs:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6
+            - g++-9
       install: *ccache-setup-steps
       script:
         - pyenv global ${PYTHON_VERSION}
