@@ -2,7 +2,7 @@ x-ccache-setup-steps: &ccache-setup-steps
   - export CCACHE_NOSTATS=1
   - export CCACHE_SLOPPINESS="file_macro,include_file_mtime,include_file_ctime,time_macros,file_stat_matches"
   - export CC='ccache gcc-9'
-  - export CXX='ccache g++-9'
+  - export CXX='ccache g++-6'
 
 os: linux
 language: cpp
