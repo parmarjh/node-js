@@ -40,13 +40,12 @@ jobs:
     - name: "Compile Node.js"
       cache: ccache
       addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
+        homebrew:
+          update: true
           packages:
-            - g++-6
+            - gcc@6
       compiler: g++
-      install: true  # *ccache-setup-steps
+      install: *ccache-setup-steps
       script:
         # - pyenv global ${PYTHON_VERSION}
         - ./configure
