@@ -544,6 +544,7 @@ def gyp_main(args):
 
 def main(args):
   try:
+    print("argz", args)
     return gyp_main(args)
   except GypError as e:
     sys.stderr.write("gyp: %s\n" % e)

@@ -1081,9 +1081,15 @@ def EvalSingleCondition(
   try:
     if cond_expr_expanded in cached_conditions_asts:
       ast_code = cached_conditions_asts[cond_expr_expanded]
+      # print("A")
     else:
       ast_code = compile(cond_expr_expanded, '<string>', 'eval')
       cached_conditions_asts[cond_expr_expanded] = ast_code
+      # print("B")
+    print(cond_expr_expanded)
+    #print(type(cond_expr_expanded), type(ast_code), type(variables))
+    # print(variables.get("gas_version"), variables.get("nasm_version"))
+    #print(type(variables.get("gas_version")), type(variables.get("nasm_version")))
     if eval(ast_code, {'__builtins__': None}, variables):
       return true_dict
     return false_dict
