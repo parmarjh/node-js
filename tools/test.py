@@ -796,7 +796,8 @@ class TestRepository(TestSuite):
     file = None
     try:
       if Py3:
-        module = importlib.import_module('testcfg', self.path)
+        print("ccc: {}".format(self.path), file=sys.stderr)
+        module = importlib.import_module('testcfg', [ self.path ])
       else:  # Python 2
         (file, pathname, description) = imp.find_module('testcfg', [ self.path ])
         module = imp.load_module('testcfg', file, pathname, description)
