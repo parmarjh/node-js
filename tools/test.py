@@ -796,10 +796,20 @@ class TestRepository(TestSuite):
     file = None
     try:
       if Py3:
-        module = importlib.import_module('testcfg', 'node.test.known_issues')
-        print("ccc 0: {}".format(module), file=sys.stderr)
-        module = importlib.import_module('testcfg', 'test.known_issues')
-        print("ccc 1: {}".format(module), file=sys.stderr)
+        try:
+          for mod, pkg in (('testcfg', NotImplemented),
+                           ('testcfg', 'node.test.known_issues'),
+                           ('testcfg', 'test.known_issues'),
+                           ('testcfg', '.test.known_issues'),
+                           ('testcfg', 'known_issues'),
+                           ('testcfg', '.known_issues'),
+                           ('testcfg', '.'),
+                           ('.testcfg', None)):
+            print("ccc 0: {} {}".format(mod, pkg), file=sys.stderr)
+            module = importlib.import_module(mod, pkg)
+            print("ccc 1: {}".format(module), file=sys.stderr)
+        except ModuleNotFoundError as e:
+          print("ccc 1: {}".format(e), file=sys.stderr)
       else:  # Python 2
         (file, pathname, description) = imp.find_module('testcfg', [ self.path ])
         module = imp.load_module('testcfg', file, pathname, description)
