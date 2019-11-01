@@ -29,8 +29,12 @@
 
 
 from __future__ import print_function
+
+import copy
+import errno
 import imp
 import logging
+import multiprocessing
 import optparse
 import os
 import re
@@ -38,27 +42,25 @@ import signal
 import subprocess
 import sys
 import tempfile
-import time
 import threading
-import utils
-import multiprocessing
-import errno
-import copy
-
-from io import open
-from os.path import join, dirname, abspath, basename, isdir, exists
+import time
 from datetime import datetime
-try:
-    from queue import Queue, Empty  # Python 3
-except ImportError:
-    from Queue import Queue, Empty  # Python 2
-
 from functools import reduce
+from io import open
+from os.path import abspath, basename, dirname, exists, isdir, join
 
+import utils
+
+Py3 = True
 try:
-  from urllib.parse import unquote    # Python 3
+  from queue import Queue, Empty  # Python 3
+  from urllib.parse import unquote
+  import importlib
 except ImportError:
-  from urllib import unquote          # Python 2
+  PY3 = False  # Python 2
+  from Queue import Queue, Empty
+  from urllib import unquote
+  import imp  # noqa: F811
 
 
 logger = logging.getLogger('testrunner')
@@ -793,8 +795,11 @@ class TestRepository(TestSuite):
     self.is_loaded = True
     file = None
     try:
-      (file, pathname, description) = imp.find_module('testcfg', [ self.path ])
-      module = imp.load_module('testcfg', file, pathname, description)
+      if Py3:
+        module = importlib.import_module('testcfg', self.path)
+      else:  # Python 2
+        (file, pathname, description) = imp.find_module('testcfg', [ self.path ])
+        module = imp.load_module('testcfg', file, pathname, description)
       self.config = module.GetConfiguration(context, self.path)
       if hasattr(self.config, 'additional_flags'):
         self.config.additional_flags += context.node_args
